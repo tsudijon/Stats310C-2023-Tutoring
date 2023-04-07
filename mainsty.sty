@@ -1,0 +1,150 @@
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{textcomp}
+\usepackage{tikz-cd}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{physics}
+\usepackage{upquote}
+\usepackage{MnSymbol}
+\usepackage{mathtools}
+\usepackage{mdframed}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage[margin=1in]{geometry}
+\usepackage{subcaption}
+\usepackage[T1, OT1]{fontenc}
+\DeclareTextSymbolDefault{\dh}{T1}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=purple
+}
+\usepackage{palatino}
+
+
+\usetikzlibrary{chains}
+\usetikzlibrary{matrix,arrows,decorations.pathmorphing}
+\usepackage{mathrsfs} 
+
+\DeclareMathOperator*{\argmin}{arg\,min} % thin space, limits underneath in displays
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cl}[1]{\mathcal{#1}}
+\newcommand{\bX}{\mathbb{X}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bC}{\mathbb{C}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bL}{\mathbb{L}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\one}{\mathbf{1}}
+\newcommand{\e}{\epsilon}
+\newcommand{\set}[1]{\lbrace #1 \rbrace}
+\newcommand{\inner}[2]{\langle #1,#2 \rangle}
+\newcommand\meq{\stackrel{\mathclap{\normalfont\mbox{(m)}}}{=}}
+\newcommand{\vertiii}[1]{{\left\vert\kern-0.25ex\left\vert\kern-0.25ex\left\vert #1 
+    \right\vert\kern-0.25ex\right\vert\kern-0.25ex\right\vert}}
+\newcommand{\scr}[1]{\mathscr{#1}}
+
+
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+\newmdtheoremenv{bprop}{Proposition}
+\newcommand{\dive}{\operatorname{div}}
+\newcommand{\U}{\mathcal{U}}
+
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\usepackage{amsthm}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{theorem}{Theorem}[section]
+\theoremstyle{definition}
+\newtheorem{proposition}{Proposition}[section]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{remark}{Remark}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{exercise}{Exercise}
+\newtheorem{problem}{Problem}[section]
+\newcommand{\notes}[1]{\textcolor{blue}{#1}}
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
+\newcommand{\indep}{\perp \!\!\! \perp}
+\newcommand{\ninf}{n \rightarrow \infty}
+
+\DeclareMathOperator{\Categorical}{Categorical}
+\DeclareMathOperator{\Ber}{Bernoulli}
+\DeclareMathOperator{\Null}{Null}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\dgm}{dgm}
+\DeclareMathOperator{\Poisson}{Poisson}
+\DeclareMathOperator{\Exponential}{Exp}
+\DeclareMathOperator{\vol}{vol}
+
+\fontsize{20}{15}
+
+%%% COLORS %%%%%
+\definecolor{orchid}{rgb}{0.85, 0.44, 0.84}
+\definecolor{paleplum}{rgb}{0.8, 0.6, 0.8}
+\definecolor{ochre}{rgb}{0.8, 0.47, 0.13}
+\definecolor{wisteria}{rgb}{0.79, 0.63, 0.86}
+\definecolor{darkorchid}{rgb}{0.6, 0.2, 0.8}
+\cfoot{Page \thepage}
+
+%%% Environments %%%%
+
+\usepackage{tcolorbox}
+
+\newtcolorbox{openproblem}[1][]
+{
+colback=red!5!white,colframe=red!75!black,title= {#1},
+}
+
+\newtcolorbox{story}[1][]
+{
+colback=orchid, colframe=darkorchid, title= {#1},
+}
+
+\newtcolorbox{warning}[1][]
+{
+colback=ochre,title= {#1},
+}
+
+\newtcolorbox{solvedproblem}[1][]
+{
+colback=blue!5!white,colframe=blue!80!black,title={#1},
+}
+
+\newtcolorbox{questionbox}
+{
+colback=orange!10!white,colframe=orange!75!black,
+}
+
+\newtcolorbox{answer}
+{
+colback=blue!5!white,colframe=blue!75!black,
+}
+
+
+%%% Custom Header
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhf{}
+\lhead{ \textsc{Stat310C Tutoring} }
+\rhead{ \nouppercase{\rightmark}}
+\cfoot{ \fancyplain{}{\thepage} }
+
+
+
+%%% Custom commands
+

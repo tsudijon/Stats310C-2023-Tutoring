@@ -1,0 +1,387 @@
+\documentclass[12pt]{article}
+\usepackage{mainsty}
+\usepackage{probabilitycommands}
+\setlength{\parindent}{0pt}
+\title{Stat310C 2023 Notes}
+\author{Timothy Sudijono}
+
+\begin{document}
+\maketitle
+
+\section{Renewal Theory}
+
+Mathematically, renewal theory is just a generalization of the Poisson process to different inter-arrival distributions.\\
+
+Let's define the objects of interest right away.  The times of occurrences of these events are denoted by 
+\begin{itemize}
+    \item IID \textbf{positive} random variables $\set{X_i}$, representing inter-arrival times, life times of objects used successively. Say that $X_i \sim F$ for some distribution function $F.$
+    \item $S_n = \sum_{i=1}^n X_i$ are the \textit{renewals}, times of arrivals, or times of events.
+    \item The most important object is the \textbf{renewal process}, $N_t = \max\set{n:S_n \leq t}$, which counts the number of events up to time $t.$\footnote{Why is this number finite? You should think about the strong law of large numbers.}
+\end{itemize}
+
+There are a few other quantities which are of book-keeping interest: 
+\begin{itemize}
+    \item $A_t = t - S_{N_t}$. This is the age of the current object, or how long you've already waited for the next event.
+    \item $\tau_t = \min\set{n: S_n > t}$ is the number of the current object/ event at time $t$. You can think of it as the first passage time, as well: how many events need to pass before we exceed time $t?$ \todo{How does $N_t$ relate to $\tau_t$?}
+    \item $R_t = S_{\tau_t} - t$ is the residual lifetime of the current object (how long the object has left to live). This is also the time to next event.
+\end{itemize}
+
+People are interested in various questions:
+\begin{questionbox}
+What is the chance $S_n$ hits some number, or that the arrival time is in some set? What is the distribution of $R_t$?
+\end{questionbox}
+
+\subsection{Several Examples}
+
+\begin{example}[Real life examples]
+Monopoly. What is the chance I land at another player's property, after the fifth time I pass go? This is the first question we're interested in. Waiting times.
+\end{example}
+
+\begin{example}[Not real life examples]
+At each integer time step $n \geq 1$ I generate a random number $X_n$ independently and uniformly from $[0,1]$. What's the expected number of steps $\tau_1$ before the running sum $S_{n}$ exceeds $1?$ By how much does it exceed $1?$ (compute $R_1$; for this reason $R_t$ is also called the \textit{overshoot}).
+\end{example}
+
+To answer the above we will rely on the formula $\E[\tau_1] = \sum_{n \geq 0} \Prob(\tau_1 > n)$. Notice that 
+\[
+\Prob(\tau_1 > n) = \Prob(X_1 + \dots + X_n \leq 1). 
+\]
+To study this latter probability, we will need to look at the slightly more general quantity $F_n(u) = \Prob(X_1 + \dots + X_n \leq u) $. We can try to derive a recursive relation to compute this. By independence,
+\[
+\Prob(X_1 + \dots + X_n \leq u) = \int_0^1 \Prob(X_1 + \dots + X_{n-1} \leq u - x) \Prob(X_n = x) dx,
+\]
+from which we find that $F_n(u) = \int_0^u F_{n-1}(u - x) dx$. A guess and check shows that $F_n(u) = u^{n}/n!$ fits this bill. From this we can back out $\E[\tau_1] = e-1.$
+
+\begin{example}[Theoretical Examples]
+In elementary statistics, we are introduced to the close relationship between the Poisson distribution and the Exponential distribution. In these classes we often introduced the Poisson process. \\
+
+Let $X_i \sim \Exponential(\lambda)$. Then the arrival times of the events are a \textbf{Poisson process}, and $N(t)$ is Poisson$(\lambda t)$ distributed. \\
+
+
+We can take this story into discrete time, by considering $X_i \sim \text{Geometric}(p)$. Then $N(n) \sim \Binomial(n,p)$. \todo{Why is this true?} To see this, consider the event times as times where independent Bernoulli coin flips are heads. \\
+
+Both these examples are very special in renewal theory as the exponential and geometric distributions are \textit{memoryless.} The answers to our questions of interest are much simpler here.
+
+\end{example}
+
+
+\subsection{A Simple Renewal Theorem}
+
+\begin{theorem}
+    As $t \rightarrow \infty, N_t/t \rightarrow 1/\mu$ a.s., with $\mu = \E[X_i] \in (0,\infty].$ Moreover, $\E[N_t/t] \rightarrow 1/\mu$ as well. The same statement holds for $\tau_t$ because $N_t + 1 = \tau_t$.
+\end{theorem}
+
+The simple renewal theorem looks very obvious, and seems intrinsically connected to the SLLN. The proof idea is exactly this, using sandwiching:
+\[
+S_{N(t)} \leq t \leq S_{N(t) + 1}
+\]
+Convergence of the expectation is shown using Wald's equation. What other way can we show this? \todo{Show UI}.
+
+
+\begin{exercise}
+    Customers at a telephone booth arrive at times of a Poisson process with rate 1. If the booth is occupied, they leave. If not they make a call whose length is random, with distribution $F$ that has mean $\mu$. Show that the times at which customers enter service are a renewal process with mean $\mu + 1$. Conclude that the asymptotic fraction of customers served is $1/(\mu+1).$
+
+    \paragraph{Solution.} After the last person leaves, by the memoryless property of the exponential, the next time  a customer enters the booth is still $\Exponential(1).$ Thus the times in between customers entering the booth a renewal process with distribution equal to $F * \Exponential(1)$, which has mean $\mu + 1.$\\
+
+By the elementary renewal theorem, the number of customers served before time $t$ is asymptotically $t/(\mu+1)$. At the same time, the total number of customers which show up is almost surely $t,$ also by the elementary renewal theorem. We conclude that the asymptotic fraction of customers served is $1/(\mu+1).$
+\end{exercise}
+
+\subsection{Blackwell's Renewal Theorem}
+
+In this section, let us assume that $\set{X_i}$ are integer valued. One of the first questions we were interested in is whether our process $S_n$ hits some value. Towards this, define  
+\[
+u_n = \Prob(\bigcup_{k = 1}^\infty \set{S_k = n}) = \sum_k \Prob(S_k = n).
+\]
+\todo{Why can we say this?}. We can already say a few things about $u_n:$ their sum up to $n$ is equal to the expected value of indices $k$ such that $S_k \leq n$. This is the expected value of $N_n.$ By our elementary renewal theorem,
+\[
+\frac{1}{n}\sum_{i=1}^n u_i \rightarrow 1/\mu.
+\]
+So if $u_i$ have a limit, it must be equal to $1/\mu$. Blackwell's theorem basically proves this fact.
+
+\begin{theorem}[Blackwell's Theorem (Class version)]
+    Suppose $\gcd{\set{n:p_n > 0}} = 1$. Then $\lim_{n \rightarrow \infty} u_n = \frac{1}{\mu}.$
+\end{theorem}
+
+\begin{proof}
+    
+\end{proof}
+
+The theorem seems to also be known as the \textit{Feller-Erdos-Pollard} theorem, in the discrete setting. Steven Lalley provides a good review of these results in his online notes. Ross's Theorem 3.4.1 also outlines this setting. \\
+
+In general, for non-integer , the $u(m)$ can be subsumed under the \textit{renewal measure}:
+
+\begin{definition}[Renewal Measure]
+\[
+U(A) = \sum_{n=0}^\infty \Prob(T_n \in A)
+\]
+This is the probability that the Renewal process ends up in a set $A$. \todo{Why is this a measure?}
+\end{definition}
+
+\begin{theorem}[Blackwell's Renewal Theorem]
+Consider a non-arithmetic $F$. Using the shorthand $U(t) = U([0,t]),$
+\[
+U(t+\delta) - U(t) \rightarrow \delta/\mu.
+\]
+\end{theorem}
+
+The proof of Blackwell's Renewal Theorem in generality uses a rather intricate coupling method. You can see the details in \cite{durrett2019probability}. 
+
+\subsection{Renewal Equations}
+
+So far we haven't talked about renewal equations, but they have popped up subtly in the examples we've considered so far. The renewal equation is a recursive equation satisfied by a function $H(t)$:
+\[
+H(t) = h(t) + \int_0^t H(t-s) dF(s).
+\]
+In convolution form, it satisfies $H = h + H * F$. \\
+
+\begin{example}[The residual lifetime satisfies a renewal equation]
+Let $H(t) = \Prob(R_t > x)$. We condition on the value of $T_1$. That is,
+\begin{align*}
+    \Prob(R_t > x) &= \Prob(R_t > x, T_1 > t) + \Prob(R_t > x, T_1 < t) \\
+    & = \Prob(S_{\tau_t} > t + x, T_1 > t) + \int_0^t\Prob(R_t > x| T_1 = u) dF(u) \\
+    & = \Prob(T_1 > t+x, T_1 > t) + \int_0^t\Prob(R_{t-u} > x) dF(u).
+\end{align*}
+Thus
+\[
+H(t) = 1 - F(x+t) + \int_0^t H(t-u) dF(u).
+\]
+The last step merits some explanation. Given $T_1 = u$, for $R_t > x$, we can treat the renewal process as having started over again at time $u$, so we must need $\tilde{R}_{t-u} > x$ for the residual lifetime of this new renewal process starting at $u.$
+
+\end{example}
+
+
+\begin{example}[The age satisfies a renewal equation]
+Let $H(t) = \Prob(A_t > x)$. Then
+\begin{align*}
+    \Prob(A_t > x) &= \Prob(A_t > x, T_1 > t) + \Prob(A_t > x, T_1 < t) \\
+    & = \Prob(t > x, T_1 > t) + \int_0^t\Prob(A_t > x| T_1 = u) dF(u) \\
+    & = (1 - F(t))\mathbf{1}_{[x,\infty)}(t) + \int_0^t\Prob(A_{t-u} > x) dF(u).
+\end{align*}
+So the age satisfies the renewal equation
+\[
+H(t) = (1 - F(t))\mathbf{1}_{[x,\infty)}(t) + \int_0^t H(t-u) dF(u)
+\]
+\end{example}
+
+
+
+It begs the question: can this recursive equation be solved in any way which would provide insight into $H?$ The answer is yes.
+
+\begin{theorem}[Solving the Renewal Equation]
+Let $U$ be the renewal measure, associated to $F$. If $h$ is bounded, then the function
+\[
+H(t) = \int_0^t h(t-s)dU(s)
+\]
+is the unique solution of the renewal equation which is bounded on bounded intervals.
+\end{theorem}
+
+We get a lot of insight into solving this by iterating the renewal equation. That is,
+\[
+H(t) = h + (h + H*F)*F = h + h*F + H*F^2,
+\]
+using the associative property of convolutions. Iterating this, we see that $H = \sum_{k = 0}^{n-1} h *F^k + H * F^n$. This leads us to consider 
+\begin{gather}
+H_n = \sum_{k=0}^{n}h * F^k = h* \sum_{k=0}^n F^k,    \\
+H = h* \sum_{k=0}^\infty F^k
+\end{gather}
+which satisfies the $H_{n+1} = h + H_n*F.$ We want to show that $H_n \rightarrow H$, and that $H_n * F \rightarrow H * F$ pointwise, which will show that $H$ solves the renewal equation.\\
+
+To do this, we just note the estimates
+\begin{align*}
+&    |H_n(t) - H(t)| \leq \norm{h}_\infty |U(t) - U_n(t)| \rightarrow 0 \\
+& |H_n*F(t) - H*F(t)| \leq \sup_{s \leq t}|H_n(s) - H(s)| \leq \norm{h}_\infty \sup_{s \leq t} |U(s) - U_n(s)|.
+\end{align*}
+
+\subsection{The Key Renewal Theorem}
+The next result will show the power of the theory. It combines our analysis of renewal equation solutions and the Blackwell Recurrence Theorem.
+
+\begin{theorem}[The Key Renewal Theorem]
+    If $F$ is nonarithmetic and $h$ is \textbf{directly Riemann integrable} then as $t \rightarrow \infty$
+    \[
+    H(t) \rightarrow \frac{1}{\mu} \int_0^\infty h(s) ds
+    \]
+\end{theorem}
+
+It is intuitive that this is true, by looking at the Renewal Equation solution and Blackwell's Renewal theorem, which states that in the limit, $dU(t) = \frac{1}{\mu}$.
+
+\begin{definition}[Directly Riemann Integrable]  
+Define
+\begin{gather}
+    I^\delta = \sum_{k=0}^\infty \delta \sup\set{h(x):x\in [k\delta,(k+1)\delta]}
+    I_\delta = \sum_{k=0}^\infty \delta \inf\set{h(x):x\in [k\delta,(k+1)\delta]}.
+\end{gather}
+A function $h$ is directly Riemann integrable if $I^\delta = I_\delta$.
+\end{definition}
+Essentially, if the Riemann sums on the entire interval $[0,\infty)$ have a limit then we are good. Lemma 2.6.13 of \cite{durrett2019probability} gives a sufficient condition for direct Riemann integrability:
+\begin{lemma}
+If $h(x) \geq 0$ is decreasing and finite, with $\int_0^\infty h(x) dx < \infty$ (Riemann integrable in the usual sense) then $h$ is directly Riemann integrable.
+\end{lemma}
+
+
+When $F$ is arithmetic (discrete), then the Key Renewal Theorem, for renewal equations $H(m) = h(m) + \sum_{k=1}^m f(k) z(m-k)$ takes the following form:
+\begin{theorem}[The Key Renewal Theorem (arithmetic case)]
+    If $F$ is arithmetic, and $h$ is absolutely summable then as $m \rightarrow \infty$
+    \[
+    H(m) \rightarrow \frac{1}{\mu} \sum_{k=0}^\infty h(k).
+    \]
+\end{theorem}
+\begin{proof}
+Combine the renewal equation solution with the Blackwell renewal theorem, using DCT.
+\end{proof}
+
+\begin{exercise}
+Show that the age $A_t$ satisfies
+\[
+\Prob(A_t > x) \rightarrow \frac{1}{\mu}\int_x^\infty (1 - F(t))dt.
+\]
+Similarly, calculate the limit distribution for the residual lifetime $R_t.$ What do you get?
+
+\paragraph{Solution.} We previously derived renewal equations for both these quantities above. The key renewal theorem applies here, showing that 
+\begin{gather}
+    A(t) \rightarrow \frac{1}{\mu}\int_0^\infty (1-F(t))\mathbf{1}_{[x,\infty)}(t) dt  \\ 
+    R(t)\rightarrow \frac{1}{\mu}\int_0^\infty (1-F(t+x)) dt.
+\end{gather}
+These are the same quantity.
+\end{exercise}
+
+\subsection{Exercises}
+
+
+
+
+
+
+\begin{exercise}[The inspection paradox: Ross' Green book]
+In 1984 the country of Morocco in an attempt to determine the average amount of time that tourists spend in that country on a visit tried two different sampling procedures.
+In one, they questioned randomly chosen tourists as they were leaving the country; in the other, they questioned randomly chosen guests at hotels. The average visiting time of the 3,017 tourists chosen from hotels was 17.8, whereas the average visiting time of the 12,063 tourists
+questioned at departure was 9.0. Can you explain this discrepancy? Does it necessarily imply
+a mistake? \\
+
+As one answer to this question, find the limiting value for the expectation of the lifetime $L_t = A_t + R_t,$ and compare it to $\E X_1.$ 
+
+\paragraph{Solution.} Let $H_x(t) = \Prob(L(t) > x)$. It satisfies a renewal equation:
+\[
+H_x(t) = \Prob(L(t) > x, T_1 <t) + \int_0^t H_x(t-u) dF(u)
+\]
+where $h_x(t) = \Prob(X_1 > x \vee t).$ Integrating this with respect to $x$ we see that $E(t) := \E L(t)$ satisfies a renewal equation:
+
+\[
+E(t) = \int_0^\infty h_x(t) dx + \int_0^t E(t-u) dF(u).
+\]
+The key renewal theorem then shows
+\[
+E(t) \rightarrow \frac{\int_0^\infty \int_0^{\infty}h_x(t) dx dt}{\mu} = \frac{\int_0^\infty t^2 f(t) dt}{\mu}.
+\]
+This is greater than $\mu!$
+
+\end{exercise}
+
+\begin{exercise}
+Using the renewal equation for the age, show that if $S_n$ are the times of a Poisson process, then $A_t$ has the same distribution as $\Exponential(1) \wedge t$. \todo{What about the residual lifetime?}
+\end{exercise}
+
+\begin{exercise}[Alternating Renewal Processes]
+Let $\xi_i \sim F_1, \eta_i \sim F_2$ iid, with means $\mu_1,\mu_2$. Let $T_0 = 0,$ and let $S_k = T_{k-1} + \xi_k, T_k = S_k + \eta_k.$ Plainly, we have a light bulb that works for an amount of time $\xi_k,$ breaks down, then requires $\eta_k$ units of time to be repaired.\\
+
+Let $F(t)$ be the fraction of time in $[0,t]$ in which we have a working light. Show that
+\[
+F(t) \rightarrow \frac{\mu_1}{\mu_1 + \mu_2}.
+\]
+
+Let $H(t)$ be the probability that the lightbulb is working at time $t$. Can we say that 
+\[
+H(t) \rightarrow \mu_1/(\mu_1 + \mu_2)?
+\]
+
+\paragraph{Solution.}
+For the first result, note that $F(T_n) = \sum_{i=1}^n \xi_n$, and that $F(T_{N(t)}) \leq F(t) \leq F(T_{N(t)+1})$. Divide by $t$ and do the sandwiching trick as in the elementary renewal theorem.\\
+
+For the second result, we may derive a renewal theorem, conditioning on $T_1$. Let $O(t)$ be the indicator for whether the light is on at time $t$. Then
+\[
+H(t) = \Prob(O_t = 1, T_1 > t) + \Prob(O_t = 1, T_1 < t), 
+\]
+which equals 
+\[
+H(t) = \Prob(S_1 > t) + H *(F_1*F_2).
+\]
+Applying the key renewal theorem shows the result.
+\end{exercise}
+
+\begin{exercise}
+    Write a renewal equation for $H(t) = \Prob(\text{number of renewals in } [0,t] \text{ is odd})$ and use the renewal theorem to show that $H(t) \rightarrow 1/2.$
+\end{exercise}
+
+\newpage
+
+\subsection{Some problems of interest}
+
+\subsubsection{Erlang-Smoluchowski model} We can think of this as an infinite server model. Let $N_t$ be a Poisson process denoting the times of incoming calls. Each call has length $Y_1,Y_2,\dots$ which are iid distribution. We are interested in the number of active calls at time $t.$\\
+
+There is also a biological interpretation.
+\begin{exercise}
+ In the Erlang infinite server model above, calculate $H(t) = \Prob(Z_t = 0).$
+
+\paragraph{Solution.}
+Notice that $\Prob(Z_t = 0) = \sum_{n=0}^\infty \Prob(N_t = n, \text{ and all calls terminate before time $t$}).$ By independence, we can split out the summands as the product of the Poisson probability and the probability that all $n$ calls terminate before time $t.$ This is where the fact that conditional on $N(t) = 1, S_1,\dots,S_n$ are the order statistics of iid uniform random variables on $[0,t].$ Thus the chance that a call ends at time $t$ is the probability that $Y_i + U(0,t)$ is less than $t.$ The times of entry are independent, so the probability that all $n$ calls terminate before time $t$ is $\Prob(Y_1 + U[0,1] < t)^n.$
+\end{exercise}
+
+\subsubsection{Single Server Queue} 
+
+
+
+We are interested in how long the $n$th customer has to wait. Call this $W_n$. Define a renewal process by $U_1,\dots,$ iid, which is the time between when customers arrive. Each customer requires a service time of $V_i$, iid from another distribution. One can see that
+\[
+W_n = (W_{n-1} + V_{n-1} - U_n)^+ = \max(W_{n-1} + X_n)
+\]
+where $X_n = V_{n-1} - U_n$, by drawing a picture. Let us suppose that $X$ has negative mean (it takes longer for a customer to arrive then to provide service).
+
+By iterating the recursion, it turns out to be equal to $\Prob(\tau_x \leq n)$. So how do we compute this latter value? \\
+
+To get started on the analysis of these models, we will analyze hitting probabilities for random walks with negative mean. We will see later that the analogous question for Brownian motion has a very clean answer, and this provides an asymptotic answer to the random walk question. \\
+
+
+\begin{exercise}[Chatterjee's 310B 2022]
+For random walks we can get bounds on what this probability is. 
+\begin{itemize}
+    \item Let $X_1,\dots$ be a sequence of iid random variables with negative mean and nonzero probability of being positive, with mgf $m$. Show there exists $\theta^* > 0$ such that $m(\theta^*) = 1$ and that $(e^{\theta^* S_n})$ is a martingale with $S_n = \sum^n X_i$.
+    \item Let $M :- \max_n S_n$. Show that $M$ is finite a.s. Using the martingale from the previous exercise, show that 
+    \[
+    \Prob(M \geq x) \leq e^{-\theta^* x}.
+    \]
+    \item As an application, let $S_n$ be the total assets of an insurnace company at the end of year $n$. In year $n$ premiums totaling $c > 0$ are received and claims $\zeta_n \sim N(\mu,\sigma^2)$ are paid and $\mu < c.$ The company is ruined if its assets drop to zero or less. If $S_0$ is random, show
+    \[
+    \Prob(\text{ruin}) \leq \exp(-2(c-\mu)S_0/\sigma^2)
+    \]
+\end{itemize}
+\end{exercise}
+
+Renewal theory, applied in a clever way, gives even better approximations. \\
+
+Let $\Prob$ be the original measure where the $X_i$ are iid with probability $F$. Let $\bb{Q}$ be the product measure where all random variables $X_i$ are iid with law $F_{\xi_1}$ given by $dF_{\xi_1}(x_i) = \exp(-\xi_1 x_i) dF(x_i)$. Let $\cl{F}_n = \sigma(X_1,\dots,X_n)$ and $\Prob_n = \Prob|_{\cl{F}_n}, $ similarly with $\bb{Q}_n$. Then $\frac{d\Prob_n}{d\bb{Q}_n} = \exp(-\xi_1 S_n).$
+
+Then
+\[
+\Prob(\tau_b = n) = \E_{\Prob}[\mathbf{1}_{\tau_b = n}] = \E_{\Prob_n}[\mathbf{1}_{\tau_b = n}]  =  \E_{\bb{Q}_n}[\mathbf{1}_{\tau_b = n}\frac{d\Prob_n}{d\bb{Q}_n}].
+\]
+This is equal to $\E_{\bb{Q}_n}[\mathbf{1}_{\tau_b = n}\exp(-\xi_1 S_n)]$.\\
+
+Summing up we obtain
+\[
+\Prob(\tau_b < \infty) = \E_{\bb{Q}_n}[\mathbf{1}_{\tau_b < \infty}\exp(-\xi_1 S_{\tau_b})]
+\]
+Under this law, the random variables are iid with positive mean. Thus $\tau_b < \infty$ always. This is a simple result on random walks, or also follows from SLLN. So
+\[
+\Prob(\tau_b < \infty) =  e^{\xi_1 b }\E_{\bb{Q}}[\exp(-\xi_1( S_{\tau_b} - b))].
+\]
+Here, the \textbf{residual lifetime} pops up again, and the hope is that we can use a renewal theorem to give us good estimates of this quantity, under $\bb{Q}_n$. \\
+
+However the $X_i$ under the new law may still take negative values. To fix this, we look at the renewal process generate by \textbf{records} of the process. Note that $\tau_b$ must take values at one of these record times. Then $S_{\tau_b} - b$ is the residual lifetime of the record process.
+
+%\section{Local Limit Theory}
+
+%\section{Brownian Motion}
+
+%\section{Diffusion Processes}
+
+\bibliographystyle{siam}
+\bibliography{main}
+\end{document}
